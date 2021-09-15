@@ -1,0 +1,109 @@
+// Variaveis do grid
+$cols: 12;
+$gutter: 20px;
+$d-device: 1200px;
+$t-device: 760px;
+$m-device: 480px;
+
+// Box-sizing
+*, *::after, *::before {
+    box-sizing: border-box;
+}
+
+// Mixin de media-querie
+@mixin device($size) {
+    @if $size == d {
+        @media screen and (min-width: $d-device) {
+            @content;
+        }
+    }
+    @else if $size == t {
+        @media screen and (min-width: $t-device) and (max-width: $d-device - 1) {
+            @content;
+        }
+    }
+    @else if $size == m {
+        @media screen and (max-width: $t-device - 1) {
+            @content;
+        }
+    }
+}
+
+// Função do grid
+@function grid($col, $offset: false) {
+    $width: $col / $cols * 100 + "%";
+    $result: calc(#{$width} - #{$gutter});
+    @if $offset == offset {
+        $gutter: $gutter / 2;
+        $result: calc(#{$width} + #{$gutter});
+    }
+    @return $result;
+}
+
+// Gera as classes de grid
+@for $i from 1 through $cols {
+    .grid-#{$i} {
+        width: grid($i);
+    }
+}
+
+// Mixin estrutura do grid
+@mixin grid-structure {
+    float: left;
+    min-height: 1px;
+    margin-left: $gutter / 2;
+    margin-right: $gutter / 2;
+    @include device(m) {
+        width: 100%;
+        float: none;
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+}
+
+[class^="grid-"] {
+    @include grid-structure;
+}
+
+// Gera as classes de offset
+@for $i from 1 through $cols {
+    .offset-#{$i} {
+        margin-left: grid($i, offset);
+        @extend %offset;
+    }
+}
+
+@include device(m) {
+    %offset {
+        margin-left: 0px;
+    }
+}
+
+// Mixin de clearfix
+@mixin clearfix {
+    &::after, &::before {
+        content: '';
+        display: table;
+        clear: both;
+    } 
+}
+
+@mixin container {
+    max-width: $d-device;
+    margin: 0px auto;
+    position: relative;
+    @include device(t) {
+       max-width: $t-device; 
+    }
+    @include device(m) {
+        max-width: $m-device;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    @include clearfix;
+}
+
+.container {
+    @include container;
+}
+
